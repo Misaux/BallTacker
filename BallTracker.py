@@ -15,12 +15,21 @@ def main():
             break
 
 def BallDetect(frame):
-    grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    cv2.GaussianBlur(grey, grey, (9, 9), 2, 2)
-    circles = cv2.HoughCircles(grey, circles, cv2.HOUGH_GRADIENT, 1, grey.rows/8, 200, 100, 0, 0)
-    for circle in circles:
-        cv2.circle(frame, (circles[0], circles[1]), 3, (0,255,0), -1, 8, 0)
-        return frame
+    imghsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    imghsv = cv2.GaussianBlur(imghsv, (9, 9), 2)
+    imgth = cv2.inRange(imghsv, np.array([20,70,70]), np.array([60,200,200]))
+    circles = cv2.HoughCircles(imgth, cv2.HOUGH_GRADIENT, 1.2, 100)
+    if circles is not None:
+    	# convert the (x, y) coordinates and radius of the circles to integers
+    	circles = np.round(circles[0, :]).astype("int")
+
+    	# loop over the (x, y) coordinates and radius of the circles
+    	for (x, y, r) in circles:
+    		# draw the circle in the output image, then draw a rectangle
+    		# corresponding to the center of the circle
+    		cv2.circle(frame, (x, y), r, (0, 255, 0), 4)
+    		cv2.rectangle(frame, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+    return frame
 
 if __name__ == '__main__':
     main()
